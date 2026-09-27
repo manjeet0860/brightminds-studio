@@ -3,10 +3,119 @@ const siteNav = document.querySelector('.site-nav');
 const yearEl = document.getElementById('year');
 const form = document.getElementById('registerForm');
 const formStatus = document.querySelector('.form-status');
+const socialLinks = {
+  instagram: 'https://www.instagram.com/brightmindsofcalgary/',
+  facebook: 'https://www.facebook.com/profile.php?id=61594931276536&sk=about',
+};
 
 if (yearEl) {
   yearEl.textContent = new Date().getFullYear();
 }
+
+// Use the official BrightMinds logo consistently in the header and footer.
+document.querySelectorAll('.brand').forEach((brand) => {
+  brand.innerHTML = `
+    <img class="brand-logo" src="assets/logo.svg" alt="BrightMinds Studio logo" />
+    <span class="brand-text">
+      <strong>BrightMinds</strong>
+      <small>Studio</small>
+    </span>
+  `;
+});
+
+// Add social links to the main navigation and footer without duplicating them.
+if (siteNav && !siteNav.querySelector('.social-nav-links')) {
+  const socialNav = document.createElement('span');
+  socialNav.className = 'social-nav-links';
+  socialNav.innerHTML = `
+    <a href="${socialLinks.instagram}" target="_blank" rel="noopener noreferrer" aria-label="BrightMinds Studio on Instagram">Instagram</a>
+    <a href="${socialLinks.facebook}" target="_blank" rel="noopener noreferrer" aria-label="BrightMinds Studio on Facebook">Facebook</a>
+  `;
+  siteNav.appendChild(socialNav);
+}
+
+const footerWrap = document.querySelector('.footer-wrap');
+if (footerWrap && !footerWrap.querySelector('.social-links')) {
+  const socialFooter = document.createElement('div');
+  socialFooter.className = 'social-links';
+  socialFooter.innerHTML = `
+    <strong>Follow along</strong>
+    <a href="${socialLinks.instagram}" target="_blank" rel="noopener noreferrer" aria-label="BrightMinds Studio on Instagram">Instagram</a>
+    <a href="${socialLinks.facebook}" target="_blank" rel="noopener noreferrer" aria-label="BrightMinds Studio on Facebook">Facebook</a>
+  `;
+  footerWrap.appendChild(socialFooter);
+}
+
+// Add styling for the logo and social links while keeping the existing stylesheet intact.
+const brandStyle = document.createElement('style');
+brandStyle.textContent = `
+  .brand-logo {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    flex: 0 0 auto;
+  }
+
+  .footer-brand .brand-logo {
+    width: 70px;
+    height: 70px;
+  }
+
+  .social-nav-links,
+  .social-links {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .social-nav-links {
+    margin-left: 0.25rem;
+    padding-left: 1rem;
+    border-left: 1px solid rgba(31, 42, 68, 0.14);
+    font-size: 0.82rem;
+  }
+
+  .social-links {
+    display: grid;
+    justify-items: start;
+    gap: 0.45rem;
+  }
+
+  .social-links strong {
+    color: #fff;
+  }
+
+  .social-links a,
+  .social-nav-links a {
+    font-weight: 800;
+  }
+
+  .social-links a:hover,
+  .social-links a:focus-visible,
+  .social-nav-links a:hover,
+  .social-nav-links a:focus-visible {
+    color: #ffd65a;
+  }
+
+  @media (max-width: 900px) {
+    .social-nav-links {
+      width: 100%;
+      margin: 0.25rem 0 0;
+      padding: 0.8rem 0 0;
+      border-left: 0;
+      border-top: 1px solid rgba(31, 42, 68, 0.14);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .brand-logo,
+    .footer-brand .brand-logo {
+      width: 52px;
+      height: 52px;
+    }
+  }
+`;
+document.head.appendChild(brandStyle);
 
 if (navToggle && siteNav) {
   navToggle.addEventListener('click', () => {
@@ -34,7 +143,6 @@ if (form && formStatus) {
     const message = formData.get('message');
 
     try {
-      // Send to FormSubmit.co (free service, no backend needed)
       const response = await fetch('https://formsubmit.co/brighmindsofcalgary@gmail.com', {
         method: 'POST',
         headers: {
