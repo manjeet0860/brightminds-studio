@@ -132,7 +132,7 @@ if (navToggle && siteNav) {
 }
 
 if (form && formStatus) {
-  form.addEventListener('submit', async (event) => {
+  form.addEventListener('submit', (event) => {
     event.preventDefault();
 
     const formData = new FormData(form);
@@ -142,44 +142,39 @@ if (form && formStatus) {
     const classType = formData.get('classType');
     const message = formData.get('message');
 
-    try {
-      // Send to Web3Forms (reliable email delivery service)
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          access_key: '4a67fc2c-8a8e-44ae-9b2d-8c6c1e2f3a4d',
-          name: name,
-          email: email,
-          from_name: name,
-          phone: 'N/A',
-          subject: `New Class Interest from ${name}`,
-          message: `
-Parent/Guardian: ${name}
-Email: ${email}
-Child Age: ${age}
-Preferred Class Type: ${classType}
-Message: ${message}
-          `,
-          redirect: window.location.href,
-        }),
-      });
+    // Show processing message
+    formStatus.textContent = 'Sending your interest...';
+    formStatus.style.color = '#56afd9';
 
-      const result = await response.json();
+    // Prepare data for FormSubmit
+    const submitData = new FormData();
+    submitData.append('name', name);
+    submitData.append('email', email);
+    submitData.append('age', age);
+    submitData.append('classType', classType);
+    submitData.append('message', message);
+    submitData.append('_captcha', 'false');
+    submitData.append('_next', window.location.href);
 
-      if (result.success) {
-        formStatus.textContent = `Thanks, ${name}! Your interest has been received. Check your email for our response.`;
-        formStatus.style.color = '#56afd9';
-        form.reset();
-      } else {
+    // Submit to FormSubmit.co
+    fetch('https://formsubmit.co/brightmindsofcalgary@gmail.com', {
+      method: 'POST',
+      body: submitData,
+    })
+      .then((response) => {
+        if (response.ok) {
+          formStatus.textContent = `Thanks, ${name}! Your interest has been received. We'll be in touch soon.`;
+          formStatus.style.color = '#56afd9';
+          form.reset();
+        } else {
+          formStatus.textContent = 'Error sending form. Please try again or email us directly.';
+          formStatus.style.color = '#ff7ea8';
+        }
+      })
+      .catch((error) => {
+        console.error('Form submission error:', error);
         formStatus.textContent = 'Error sending form. Please email us at brightmindsofcalgary@gmail.com';
         formStatus.style.color = '#ff7ea8';
-      }
-    } catch (error) {
-      formStatus.textContent = 'Error sending form. Please email us at brightmindsofcalgary@gmail.com';
-      formStatus.style.color = '#ff7ea8';
-    }
+      });
   });
 }
