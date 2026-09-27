@@ -23,14 +23,44 @@ if (navToggle && siteNav) {
 }
 
 if (form && formStatus) {
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const formData = new FormData(form);
     const name = formData.get('name') || 'Parent';
+    const email = formData.get('email');
+    const age = formData.get('age');
+    const classType = formData.get('classType');
+    const message = formData.get('message');
 
-    formStatus.textContent = `Thanks, ${name}! Your interest has been received. We’ll be in touch soon.`;
-    form.reset();
+    try {
+      // Send to FormSubmit.co (free service, no backend needed)
+      const response = await fetch('https://formsubmit.co/brighmindsofcalgary@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          age,
+          classType,
+          message,
+          _captcha: 'false',
+        }),
+      });
+
+      if (response.ok) {
+        formStatus.textContent = `Thanks, ${name}! Your interest has been received. We'll be in touch soon.`;
+        formStatus.style.color = '#56afd9';
+        form.reset();
+      } else {
+        formStatus.textContent = 'Error sending form. Please try again or email us directly.';
+        formStatus.style.color = '#ff7ea8';
+      }
+    } catch (error) {
+      formStatus.textContent = 'Error sending form. Please email us at brighmindsofcalgary@gmail.com';
+      formStatus.style.color = '#ff7ea8';
+    }
   });
 }
-
