@@ -143,31 +143,42 @@ if (form && formStatus) {
     const message = formData.get('message');
 
     try {
-      const response = await fetch('https://formsubmit.co/brighmindsofcalgary@gmail.com', {
+      // Send to Web3Forms (reliable email delivery service)
+      const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name,
-          email,
-          age,
-          classType,
-          message,
-          _captcha: 'false',
+          access_key: '4a67fc2c-8a8e-44ae-9b2d-8c6c1e2f3a4d',
+          name: name,
+          email: email,
+          from_name: name,
+          phone: 'N/A',
+          subject: `New Class Interest from ${name}`,
+          message: `
+Parent/Guardian: ${name}
+Email: ${email}
+Child Age: ${age}
+Preferred Class Type: ${classType}
+Message: ${message}
+          `,
+          redirect: window.location.href,
         }),
       });
 
-      if (response.ok) {
-        formStatus.textContent = `Thanks, ${name}! Your interest has been received. We'll be in touch soon.`;
+      const result = await response.json();
+
+      if (result.success) {
+        formStatus.textContent = `Thanks, ${name}! Your interest has been received. Check your email for our response.`;
         formStatus.style.color = '#56afd9';
         form.reset();
       } else {
-        formStatus.textContent = 'Error sending form. Please try again or email us directly.';
+        formStatus.textContent = 'Error sending form. Please email us at brightmindsofcalgary@gmail.com';
         formStatus.style.color = '#ff7ea8';
       }
     } catch (error) {
-      formStatus.textContent = 'Error sending form. Please email us at brighmindsofcalgary@gmail.com';
+      formStatus.textContent = 'Error sending form. Please email us at brightmindsofcalgary@gmail.com';
       formStatus.style.color = '#ff7ea8';
     }
   });
